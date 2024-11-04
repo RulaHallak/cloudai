@@ -15,57 +15,61 @@
 # limitations under the License.
 
 from pathlib import Path
-from typing import Any, Dict, List, cast
+from typing import List, cast
 
 from cloudai import TestRun
-from cloudai.systems.slurm.strategy import SlurmCommandGenStrategy
+from cloudai.systems.slurm.strategy import SlurmCommandGenStrategy2
 from cloudai.test_definitions.nccl import NCCLTestDefinition
 
 
-class NcclTestSlurmCommandGenStrategy(SlurmCommandGenStrategy):
+class NcclTestSlurmCommandGenStrategy(SlurmCommandGenStrategy2):
     """Command generation strategy for NCCL tests on Slurm systems."""
 
-    def _parse_slurm_args(
-        self, job_name_prefix: str, env_vars: Dict[str, str], cmd_args: Dict[str, str], tr: TestRun
-    ) -> Dict[str, Any]:
-        base_args = super()._parse_slurm_args(job_name_prefix, env_vars, cmd_args, tr)
+    def tdef(self, tr: TestRun) -> NCCLTestDefinition:
+        return cast(NCCLTestDefinition, tr.test.test_definition)
+
+    def generate_srun_prefix(self, tr: TestRun) -> List[str]:
+        srun_command_parts = ["srun", f"--mpi={self.system.mpi}"]
+        tdef = self.tdef(tr)
+        srun_command_parts.append(f"--container-image={tdef.docker_image.installed_path}")
+
+        env_vars: dict[str, str] = {k: str(v) for k, v in self.system.global_env_vars.items()}
+        env_vars.update(tr.test.extra_env_vars)
 
         container_mounts = ""
         if "NCCL_TOPO_FILE" in env_vars and "DOCKER_NCCL_TOPO_FILE" in env_vars:
             nccl_graph_path = Path(env_vars["NCCL_TOPO_FILE"]).resolve()
             nccl_graph_file = env_vars["DOCKER_NCCL_TOPO_FILE"]
             container_mounts = f"{nccl_graph_path}:{nccl_graph_file}"
-        elif "NCCL_TOPO_FILE" in env_vars:
-            del env_vars["NCCL_TOPO_FILE"]
+        if container_mounts:
+            srun_command_parts.append(f"--container-mounts={container_mounts}")
 
-        tdef: NCCLTestDefinition = cast(NCCLTestDefinition, tr.test.test_definition)
-        base_args.update({"image_path": tdef.docker_image.installed_path, "container_mounts": container_mounts})
+        if self.system.extra_srun_args:
+            srun_command_parts.append(self.system.extra_srun_args)
 
-        return base_args
+        return srun_command_parts
 
-    def generate_test_command(self, env_vars: Dict[str, str], cmd_args: Dict[str, str], tr: TestRun) -> List[str]:
-        srun_command_parts = [f"/usr/local/bin/{cmd_args['subtest_name']}"]
-        nccl_test_args = [
-            "nthreads",
-            "ngpus",
-            "minbytes",
-            "maxbytes",
-            "stepbytes",
-            "op",
-            "datatype",
-            "root",
-            "iters",
-            "warmup_iters",
-            "agg_iters",
-            "average",
-            "parallel_init",
-            "check",
-            "blocking",
-            "cudagraph",
+    def generate_test_command(self, tr: TestRun) -> List[str]:
+        cmd_args = self.tdef(tr).cmd_args
+        srun_command_parts = [
+            f"/usr/local/bin/{cmd_args.subtest_name}",
+            f"--nthreads {cmd_args.nthreads}",
+            f"--ngpus {cmd_args.ngpus}",
+            f"--minbytes {cmd_args.minbytes}",
+            f"--maxbytes {cmd_args.maxbytes}",
+            f"--stepbytes {cmd_args.stepbytes}",
+            f"--op {cmd_args.op}",
+            f"--datatype {cmd_args.datatype}",
+            f"--root {cmd_args.root}",
+            f"--iters {cmd_args.iters}",
+            f"--warmup_iters {cmd_args.warmup_iters}",
+            f"--agg_iters {cmd_args.agg_iters}",
+            f"--average {cmd_args.average}",
+            f"--parallel_init {cmd_args.parallel_init}",
+            f"--check {cmd_args.check}",
+            f"--blocking {cmd_args.blocking}",
+            f"--cudagraph {cmd_args.cudagraph}",
         ]
-        for arg in nccl_test_args:
-            if arg in cmd_args:
-                srun_command_parts.append(f"--{arg} {cmd_args[arg]}")
 
         if tr.test.extra_cmd_args:
             srun_command_parts.append(tr.test.extra_cmd_args)
