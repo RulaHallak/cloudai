@@ -86,7 +86,7 @@ class SlurmCommandGenStrategy(CommandGenStrategy):
         Raises:
             KeyError: If partition or essential node settings are missing.
         """
-        job_name = self.job_name(job_name_prefix)
+        job_name = self.job_name(tr)
 
         parsed_nodes = self.system.parse_nodes(tr.nodes)
         num_nodes = len(parsed_nodes) if parsed_nodes else tr.num_nodes
@@ -102,7 +102,8 @@ class SlurmCommandGenStrategy(CommandGenStrategy):
 
         return slurm_args
 
-    def job_name(self, job_name_prefix: str) -> str:
+    def job_name(self, tr: TestRun) -> str:
+        job_name_prefix = tr.test.test_template.__class__.__name__
         job_name = f"{job_name_prefix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         if self.system.account:
             job_name = f"{self.system.account}-{job_name_prefix}.{datetime.now().strftime('%Y%m%d_%H%M%S')}"

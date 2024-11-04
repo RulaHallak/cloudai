@@ -67,7 +67,7 @@ class TestChakraReplaySlurmCommandGenStrategy:
         nodes: List[str],
         expected_result: Dict[str, Any],
     ) -> None:
-        tr = Mock(spec=TestRun)
+        tr = create_autospec_dataclass(TestRun)
         tr.num_nodes = num_nodes
         tr.nodes = nodes
         slurm_args = cmd_gen_strategy._parse_slurm_args(job_name_prefix, env_vars, cmd_args, tr)
@@ -78,7 +78,7 @@ class TestChakraReplaySlurmCommandGenStrategy:
         job_name_prefix = "chakra_replay"
         env_vars = {"NCCL_DEBUG": "INFO"}
         cmd_args = {"trace_path": "/workspace/traces/"}  # Missing "docker_image_url"
-        tr = Mock(spec=TestRun)
+        tr = create_autospec_dataclass(TestRun)
         tr.num_nodes = 2
         tr.nodes = ["node1", "node2"]
 

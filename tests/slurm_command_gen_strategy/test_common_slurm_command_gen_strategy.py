@@ -22,6 +22,7 @@ import pytest
 from cloudai import Test, TestDefinition, TestRun, TestTemplate
 from cloudai.systems import SlurmSystem
 from cloudai.systems.slurm.strategy import SlurmCommandGenStrategy
+from tests.conftest import create_autospec_dataclass
 
 
 @pytest.fixture
@@ -64,7 +65,6 @@ def test_filename_generation(strategy_fixture: SlurmCommandGenStrategy, testrun_
     with open(filepath_from_command, "r") as file:
         file_contents = file.read()
 
-    assert "test_job" in file_contents
     assert "node1,node2" in file_contents
     assert "srun" in file_contents
     assert "--mpi=fake-mpi" in file_contents
@@ -74,7 +74,7 @@ def test_num_nodes_and_nodes(strategy_fixture: SlurmCommandGenStrategy):
     job_name_prefix = "test_job"
     env_vars = {"TEST_VAR": "VALUE"}
     cmd_args = {"test_arg": "test_value"}
-    tr = Mock(spec=TestRun)
+    tr = create_autospec_dataclass(TestRun)
     tr.nodes = ["node1", "node2"]
     tr.num_nodes = 3
 
@@ -87,7 +87,7 @@ def test_only_num_nodes(strategy_fixture: SlurmCommandGenStrategy):
     job_name_prefix = "test_job"
     env_vars = {"TEST_VAR": "VALUE"}
     cmd_args = {"test_arg": "test_value"}
-    tr = create_autospec(TestRun)
+    tr = create_autospec_dataclass(TestRun)
     tr.nodes = []
     tr.num_nodes = 3
 
@@ -100,8 +100,7 @@ def test_only_nodes(strategy_fixture: SlurmCommandGenStrategy):
     job_name_prefix = "test_job"
     env_vars = {"TEST_VAR": "VALUE"}
     cmd_args = {"test_arg": "test_value"}
-    # nodes =
-    tr = create_autospec(TestRun)
+    tr = create_autospec_dataclass(TestRun)
     tr.num_nodes = 0
     tr.nodes = ["node1", "node2"]
 
