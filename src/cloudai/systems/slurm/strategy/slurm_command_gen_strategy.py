@@ -281,7 +281,7 @@ class SlurmCommandGenStrategy2(ABC, CommandGenStrategy):
 
     def gen_exec_command(self, tr: TestRun) -> str:
         srun_command = self.generate_srun_command(tr)
-        return self.write_sbatch_script(srun_command, tr)
+        return f"sbatch {self.write_sbatch_script(srun_command, tr)}"
 
     def job_name(self, tr: TestRun) -> str:
         job_name_prefix = tr.test.test_template.__class__.__name__
@@ -312,7 +312,7 @@ class SlurmCommandGenStrategy2(ABC, CommandGenStrategy):
 
         return batch_script_content
 
-    def write_sbatch_script(self, srun_command: str, tr: TestRun) -> str:
+    def write_sbatch_script(self, srun_command: str, tr: TestRun) -> Path:
         batch_script_content = self.create_sbatch_directives(tr)
 
         env_vars: dict[str, str] = {k: str(v) for k, v in self.system.global_env_vars.items()}
@@ -325,7 +325,7 @@ class SlurmCommandGenStrategy2(ABC, CommandGenStrategy):
         with batch_script_path.open("w") as batch_file:
             batch_file.write("\n".join(batch_script_content))
 
-        return f"sbatch {batch_script_path}"
+        return batch_script_path
 
     def create_sbatch_directives(self, tr: TestRun) -> list[str]:
         parsed_nodes = self.system.parse_nodes(tr.nodes)
