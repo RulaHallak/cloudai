@@ -14,13 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List
+from typing import List
 from unittest.mock import Mock
 
 import pytest
 
+from cloudai import TestRun
+from cloudai._core.test import Test
 from cloudai.schema.test_template.sleep.slurm_command_gen_strategy import SleepSlurmCommandGenStrategy
 from cloudai.systems import SlurmSystem
+from cloudai.test_definitions.sleep import SleepCmdArgs, SleepTestDefinition
 
 
 class TestSleepSlurmCommandGenStrategy:
@@ -29,18 +32,26 @@ class TestSleepSlurmCommandGenStrategy:
         return SleepSlurmCommandGenStrategy(slurm_system, {})
 
     @pytest.mark.parametrize(
-        "cmd_args, expected_command",
+        "cmd_args, extra_cmd_args, expected_command",
         [
-            ({"seconds": "60"}, ["sleep 60"]),
-            ({"seconds": "120"}, ["sleep 120"]),
+            (SleepCmdArgs(seconds=60), {}, ["sleep", "60"]),
+            (SleepCmdArgs(seconds=120), {"extra": ""}, ["sleep", "120", "extra"]),
         ],
     )
     def test_generate_test_command(
         self,
-        cmd_gen_strategy: SleepSlurmCommandGenStrategy,
-        cmd_args: Dict[str, str],
+        cmd_args: SleepCmdArgs,
+        extra_cmd_args: dict[str, str],
         expected_command: List[str],
+        cmd_gen_strategy: SleepSlurmCommandGenStrategy,
     ) -> None:
-        env_vars = {}
-        command = cmd_gen_strategy.generate_test_command(env_vars, cmd_args, Mock())
+        tdef = SleepTestDefinition(
+            name="sleep",
+            description="desc",
+            test_template_name="sleep",
+            cmd_args=cmd_args,
+            extra_cmd_args=extra_cmd_args,
+        )
+        tr = TestRun(name="name", test=Test(test_definition=tdef, test_template=Mock()), num_nodes=1, nodes=[])
+        command = cmd_gen_strategy.generate_test_command(tr)
         assert command == expected_command

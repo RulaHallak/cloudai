@@ -14,14 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List
+from typing import List, cast
 
 from cloudai import TestRun
-from cloudai.systems.slurm.strategy import SlurmCommandGenStrategy
+from cloudai.systems.slurm.strategy import SlurmCommandGenStrategy2
+from cloudai.test_definitions.sleep import SleepTestDefinition
 
 
-class SleepSlurmCommandGenStrategy(SlurmCommandGenStrategy):
+class SleepSlurmCommandGenStrategy(SlurmCommandGenStrategy2):
     """Command generation strategy for Sleep on Slurm systems."""
 
-    def generate_test_command(self, env_vars: Dict[str, str], cmd_args: Dict[str, str], tr: TestRun) -> List[str]:
-        return [f'sleep {cmd_args["seconds"]}']
+    def tdef(self, tr: TestRun) -> SleepTestDefinition:
+        return cast(SleepTestDefinition, tr.test.test_definition)
+
+    def generate_srun_prefix(self, tr: TestRun) -> List[str]:
+        srun_command_parts = ["srun", f"--mpi={self.system.mpi}"]
+        if self.system.extra_srun_args:
+            srun_command_parts.append(self.system.extra_srun_args)
+
+        return srun_command_parts
+
+    def generate_test_command(self, tr: TestRun) -> List[str]:
+        srun_command_parts = ["sleep", str(self.tdef(tr).cmd_args.seconds)]
+
+        if tr.test.extra_cmd_args:
+            srun_command_parts.append(tr.test.extra_cmd_args)
+
+        return srun_command_parts
