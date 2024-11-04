@@ -14,13 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List
-from unittest.mock import Mock
+from typing import List
 
 import pytest
 
+from cloudai._core.test_scenario import TestRun
 from cloudai.schema.test_template.ucc_test.slurm_command_gen_strategy import UCCTestSlurmCommandGenStrategy
 from cloudai.systems import SlurmSystem
+from cloudai.test_definitions.ucc import UCCCmdArgs
+from tests.conftest import create_autospec_dataclass
 
 
 class TestUCCTestSlurmCommandGenStrategy:
@@ -32,7 +34,7 @@ class TestUCCTestSlurmCommandGenStrategy:
         "cmd_args, extra_cmd_args, expected_command",
         [
             (
-                {"collective": "allgather", "b": "8", "e": "256M"},
+                UCCCmdArgs(collective="allgather", b=8, e="256M"),
                 "--max-steps 100",
                 [
                     "/opt/hpcx/ucc/bin/ucc_perftest",
@@ -45,12 +47,13 @@ class TestUCCTestSlurmCommandGenStrategy:
                 ],
             ),
             (
-                {"collective": "allreduce", "b": "4"},
+                UCCCmdArgs(collective="allreduce", b=4),
                 "",
                 [
                     "/opt/hpcx/ucc/bin/ucc_perftest",
                     "-c allreduce",
                     "-b 4",
+                    "-e 8M",
                     "-m cuda",
                     "-F",
                 ],
@@ -59,13 +62,13 @@ class TestUCCTestSlurmCommandGenStrategy:
     )
     def test_generate_test_command(
         self,
-        cmd_gen_strategy: UCCTestSlurmCommandGenStrategy,
-        cmd_args: Dict[str, str],
+        cmd_args: UCCCmdArgs,
         extra_cmd_args: str,
         expected_command: List[str],
+        cmd_gen_strategy: UCCTestSlurmCommandGenStrategy,
     ) -> None:
-        env_vars = {}
-        tr = Mock()
+        tr = create_autospec_dataclass(TestRun)
+        tr.test.test_definition.cmd_args = cmd_args
         tr.test.extra_cmd_args = extra_cmd_args
-        command = cmd_gen_strategy.generate_test_command(env_vars, cmd_args, tr)
+        command = cmd_gen_strategy.generate_test_command(tr)
         assert command == expected_command

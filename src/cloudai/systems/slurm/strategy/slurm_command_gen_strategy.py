@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
@@ -222,3 +223,140 @@ class SlurmCommandGenStrategy(CommandGenStrategy):
         batch_script_content.append(
             "\nexport SLURM_JOB_MASTER_NODE=$(scontrol show hostname $SLURM_JOB_NODELIST | head -n 1)"
         )
+
+    def create_sbatch_directives(self, tr: TestRun) -> list[str]:
+        parsed_nodes = self.system.parse_nodes(tr.nodes)
+        num_nodes = len(parsed_nodes) if parsed_nodes else tr.num_nodes
+        node_list_str = ",".join(parsed_nodes) if parsed_nodes else ""
+
+        batch_script_content = [
+            "#!/bin/bash",
+            f"#SBATCH --job-name={self.job_name(tr)}",
+            f"#SBATCH -N {num_nodes}",
+            f"#SBATCH --nodelist={node_list_str}",
+        ]
+        batch_script_content = self._add_reservation(batch_script_content)
+
+        batch_script_content.append(f"#SBATCH --output={tr.output_path / 'stdout.txt'}")
+        batch_script_content.append(f"#SBATCH --error={tr.output_path / 'stderr.txt'}")
+        batch_script_content.append(f"#SBATCH --partition={self.system.default_partition}")
+        if self.system.account:
+            batch_script_content.append(f"#SBATCH --account={self.system.account}")
+        if self.system.distribution:
+            batch_script_content.append(f"#SBATCH --distribution={self.system.distribution}")
+        if self.system.gpus_per_node:
+            batch_script_content.append(f"#SBATCH --gpus-per-node={self.system.gpus_per_node}")
+            batch_script_content.append(f"#SBATCH --gres=gpu:{self.system.gpus_per_node}")
+        if self.system.ntasks_per_node:
+            batch_script_content.append(f"#SBATCH --ntasks-per-node={self.system.ntasks_per_node}")
+        if tr.time_limit:
+            batch_script_content.append(f"#SBATCH --time={tr.time_limit}")
+
+        batch_script_content.append(
+            "\nexport SLURM_JOB_MASTER_NODE=$(scontrol show hostname $SLURM_JOB_NODELIST | head -n 1)"
+        )
+
+        return batch_script_content
+
+
+class SlurmCommandGenStrategy2(ABC, CommandGenStrategy):
+    """Base class for defining command generation strategies specific to Slurm environments."""
+
+    def __init__(self, system: SlurmSystem, cmd_args: Dict[str, Any]) -> None:
+        super().__init__(system, cmd_args)
+        self.system = system
+        if not self.system.default_partition:
+            raise ValueError(
+                "Default partition not set in the Slurm system object. "
+                "The 'default_partition' attribute should be properly defined in the Slurm system configuration. "
+                "Please ensure that 'default_partition' is set correctly in the corresponding system configuration "
+                "(e.g., system.toml)."
+            )
+
+    @abstractmethod
+    def generate_srun_prefix(self, tr: TestRun) -> List[str]: ...
+
+    @abstractmethod
+    def generate_test_command(self, tr: TestRun) -> List[str]: ...
+
+    def gen_exec_command(self, tr: TestRun) -> str:
+        srun_command = self.generate_srun_command(tr)
+        return self.write_sbatch_script(srun_command, tr)
+
+    def job_name(self, tr: TestRun) -> str:
+        job_name_prefix = tr.test.test_template.__class__.__name__
+        job_name = f"{job_name_prefix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        if self.system.account:
+            job_name = f"{self.system.account}-{job_name_prefix}.{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        return job_name
+
+    def generate_srun_command(self, tr: TestRun) -> str:
+        srun_command_parts = self.generate_srun_prefix(tr)
+        test_command_parts = self.generate_test_command(tr)
+        return " \\\n".join(srun_command_parts + test_command_parts)
+
+    def _add_reservation(self, batch_script_content: List[str]):
+        """
+        Add reservation if provided.
+
+        Args:
+            batch_script_content (List[str]): content of the batch script.
+
+        Returns:
+            List[str]: updated batch script with reservation if exists.
+        """
+        reservation_key = "--reservation "
+        if self.system.extra_srun_args and reservation_key in self.system.extra_srun_args:
+            reservation = self.system.extra_srun_args.split(reservation_key, 1)[1].split(" ", 1)[0]
+            batch_script_content.append(f"#SBATCH --reservation={reservation}")
+
+        return batch_script_content
+
+    def write_sbatch_script(self, srun_command: str, tr: TestRun) -> str:
+        batch_script_content = self.create_sbatch_directives(tr)
+
+        env_vars: dict[str, str] = {k: str(v) for k, v in self.system.global_env_vars.items()}
+        env_vars.update(tr.test.extra_env_vars)
+        for key, value in env_vars.items():
+            batch_script_content.append(f"export {key}={value}")
+        batch_script_content.extend(["", srun_command])
+
+        batch_script_path = tr.output_path / "cloudai_sbatch_script.sh"
+        with batch_script_path.open("w") as batch_file:
+            batch_file.write("\n".join(batch_script_content))
+
+        return f"sbatch {batch_script_path}"
+
+    def create_sbatch_directives(self, tr: TestRun) -> list[str]:
+        parsed_nodes = self.system.parse_nodes(tr.nodes)
+        num_nodes = len(parsed_nodes) if parsed_nodes else tr.num_nodes
+        node_list_str = ",".join(parsed_nodes) if parsed_nodes else ""
+
+        batch_script_content = [
+            "#!/bin/bash",
+            f"#SBATCH --job-name={self.job_name(tr)}",
+            f"#SBATCH -N {num_nodes}",
+            f"#SBATCH --nodelist={node_list_str}",
+        ]
+        batch_script_content = self._add_reservation(batch_script_content)
+
+        batch_script_content.append(f"#SBATCH --output={tr.output_path / 'stdout.txt'}")
+        batch_script_content.append(f"#SBATCH --error={tr.output_path / 'stderr.txt'}")
+        batch_script_content.append(f"#SBATCH --partition={self.system.default_partition}")
+        if self.system.account:
+            batch_script_content.append(f"#SBATCH --account={self.system.account}")
+        if self.system.distribution:
+            batch_script_content.append(f"#SBATCH --distribution={self.system.distribution}")
+        if self.system.gpus_per_node:
+            batch_script_content.append(f"#SBATCH --gpus-per-node={self.system.gpus_per_node}")
+            batch_script_content.append(f"#SBATCH --gres=gpu:{self.system.gpus_per_node}")
+        if self.system.ntasks_per_node:
+            batch_script_content.append(f"#SBATCH --ntasks-per-node={self.system.ntasks_per_node}")
+        if tr.time_limit:
+            batch_script_content.append(f"#SBATCH --time={tr.time_limit}")
+
+        batch_script_content.append(
+            "\nexport SLURM_JOB_MASTER_NODE=$(scontrol show hostname $SLURM_JOB_NODELIST | head -n 1)"
+        )
+
+        return batch_script_content

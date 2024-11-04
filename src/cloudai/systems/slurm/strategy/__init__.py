@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .slurm_command_gen_strategy import SlurmCommandGenStrategy
+from .slurm_command_gen_strategy import SlurmCommandGenStrategy, SlurmCommandGenStrategy2
 
 __all__ = [
     "SlurmCommandGenStrategy",
+    "SlurmCommandGenStrategy2",
 ]

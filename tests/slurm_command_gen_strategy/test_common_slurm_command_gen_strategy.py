@@ -15,7 +15,7 @@
 # limitations under the License.
 
 from pathlib import Path
-from unittest.mock import Mock, create_autospec
+from unittest.mock import Mock
 
 import pytest
 

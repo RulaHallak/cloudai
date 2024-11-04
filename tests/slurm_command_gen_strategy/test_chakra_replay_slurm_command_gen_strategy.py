@@ -15,7 +15,6 @@
 # limitations under the License.
 
 from typing import Any, Dict, List
-from unittest.mock import Mock
 
 import pytest
 
