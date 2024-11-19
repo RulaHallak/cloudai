@@ -264,7 +264,7 @@ class DockerImageCacheManager:
         Returns:
             PrerequisiteCheckResult: Result of the prerequisite check.
         """
-        required_binaries = ["enroot", "srun"]
+        required_binaries = ["srun"]
         missing_binaries = [binary for binary in required_binaries if not shutil.which(binary)]
 
         if missing_binaries:
