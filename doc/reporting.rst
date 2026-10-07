@@ -46,7 +46,7 @@ could not be determined. Dry runs include scenario and test-case details without
 
 Metrics are sourced from ``TestDefinition.metric_observations()``, and are not affected by reporter settings.
 
-When a test case is executed successfully, ``tests[].metrics`` contains that execution's metrics. For DSE, it contains
+When a test case executes once successfully, ``tests[].metrics`` contains that execution's metrics. For DSE, it contains
 metrics from the successful step with the highest valid reward. The search space, selected step, and configuration appear
 in ``tests[].dse``.
 
