@@ -5,7 +5,7 @@ CloudAI submits Kubernetes resources, monitors execution, and saves results loca
 
 <Anchor id="prepare-cluster-access" />
 
-## Prepare cluster access
+## Prepare Cluster Access
 
 - Install CloudAI using [Install CloudAI](/getting-started) and make `kubectl` available on the machine running CloudAI.
 - Use a kubeconfig with permission to create, inspect, and delete workload resources in your namespace.
@@ -35,12 +35,12 @@ Use an existing namespace or create it before running an experiment.
 
 <Anchor id="choose-an-experiment" />
 
-## Choose an experiment
+## Choose an Experiment
 
-| Example | Cluster prerequisite | CloudAI submits |
+| Example | Cluster Prerequisite | CloudAI Submits |
 | --- | --- | --- |
-| [Dynamo inference](/workloads/ai-dynamo#dynamo-kubernetes) | Dynamo operator and platform services | `DynamoGraphDeployment` (`nvidia.com/v1alpha1`) |
-| [NCCL all-reduce](/workloads/nccl#nccl-kubernetes) | Kubeflow MPI Operator | `MPIJob` (`kubeflow.org/v2beta1`) |
+| [Dynamo Inference](/workloads/ai-dynamo#dynamo-kubernetes) | Dynamo operator and platform services | `DynamoGraphDeployment` (`nvidia.com/v1alpha1`) |
+| [NCCL All-Reduce](/workloads/nccl#nccl-kubernetes) | Kubeflow MPI Operator | `MPIJob` (`kubeflow.org/v2beta1`) |
 
 Sleep also supports Kubernetes for scheduling checks. See [Workload and system support](/reference/workload-support) for the complete matrix.
 
@@ -48,7 +48,7 @@ Sleep also supports Kubernetes for scheduling checks. See [Workload and system s
 
 <Anchor id="kubernetes-networking" />
 
-## Use Network Operator attachments
+## Use Network Operator Attachments
 
 For Dynamo and NCCL, CloudAI can attach worker pods to networks provisioned by
 [NVIDIA Network Operator](https://docs.nvidia.com/networking/display/kubernetes2610/quick-start/quick-start-k8s.html).
@@ -82,8 +82,8 @@ The generated `deployment.yaml` in each case's output directory shows the select
 
 <Anchor id="inspect-results" />
 
-## Inspect results
+## Inspect Results
 
 CloudAI saves the generated deployment, resolved test configuration, and workload output under `output_path`.
-It removes the submitted workload resources when the experiment completes. Use [Read results and generate reports](/reporting) to inspect results
+It removes the submitted workload resources when the experiment completes. Use [Results and Reports](/reporting) to inspect results
 and [kubernetes system](/systems#kubernetes-system) for the system field reference.

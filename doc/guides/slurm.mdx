@@ -9,12 +9,12 @@ Run CloudAI on a login or submit node. Slurm schedules the workloads on compute 
 - **Compute nodes:** execute the generated script and launch workload processes with `srun`.
 - **Results:** workload logs and measurements are written to `output_path`; CloudAI produces reports on the submit host.
 
-Start with [Set up your execution environment](/guides/environment) to configure your cluster. Keep CloudAI running while it monitors the experiment,
+Start with [Execution Environments](/guides/environment) to configure your cluster. Keep CloudAI running while it monitors the experiment,
 and make input, install, and output paths accessible where they are used.
 
 <Anchor id="choose-an-allocation-mode" />
 
-## Choose an allocation mode
+## Choose an Allocation Mode
 
 | Mode | Execution | Use when |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ uv run cloudai run --system-config slurm.toml \
     --test-scenario conf/experimental/quickstart/nccl.toml --single-sbatch
 ```
 
-Assuming two cases in a scenario like this:
+Assuming we have two cases in a scenario like this:
 
 ```toml
 [[Tests]]
@@ -131,7 +131,7 @@ srun ... --arg=val --other-arg=other-val ...
 
 <Anchor id="docker-image-import-arguments" />
 
-### Set image import limits
+### Set Image Import Limits
 
 Image imports have separate allocation arguments from workload execution. Add these top-level settings to your
 system TOML when caching images locally:
@@ -143,11 +143,11 @@ extra_srun_args = "--cpu-bind=cores"
 docker_image_import_extra_sbatch_args = ["--time=00:20:00"]
 ```
 
-- Each import uses one node and one task, with the system's account and default partition.
-- The example allows 20 minutes per image import, excluding queue wait time.
+- Each import uses one node and one task, with the system's account and default partition
+- The example allows 20 minutes per image import, excluding queue wait time
 - `extra_sbatch_args` and `extra_srun_args` apply only to workloads. Put import-specific options in
-  `docker_image_import_extra_sbatch_args`.
-- With no import time argument, Slurm's default time limit applies.
+  `docker_image_import_extra_sbatch_args`
+- With no import time argument, Slurm's default time limit applies
 
 <Anchor id="container-mounts" />
 

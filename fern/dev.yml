@@ -1,48 +1,48 @@
 navigation:
-- page: CloudAI
+- page: CloudAI Benchmark Framework Documentation
   path: ../doc/index.mdx
   slug: /
-- section: Get started
+- section: Getting Started
   skip-slug: true
   contents:
   - page: Install CloudAI
     path: ../doc/getting-started.mdx
     slug: getting-started
-  - page: Run your first experiment
+  - page: Run an Experiment
     path: ../doc/tutorial.mdx
     slug: tutorial
-  - page: Understand experiment configuration
+  - page: Experiment Configuration
     path: ../doc/guides/configuration.mdx
     slug: guides/configuration
   path: ../doc/start/index.mdx
-- section: Run experiments
+- section: Experiments
   skip-slug: true
   contents:
-  - page: Set up your execution environment
+  - page: Execution Environments
     path: ../doc/guides/environment.mdx
     slug: guides/environment
-  - page: Run on Slurm
+  - page: Slurm
     path: ../doc/guides/slurm.mdx
     slug: guides/slurm
-  - page: Run on Kubernetes
+  - page: Kubernetes
     path: ../doc/guides/kubernetes.mdx
     slug: guides/kubernetes
-  - page: Compose a scenario
+  - page: Scenarios
     path: ../doc/guides/scenarios.mdx
     slug: guides/scenarios
-  - page: Prepare and clean up with hooks
+  - page: Hooks
     path: ../doc/guides/hooks.mdx
     slug: guides/hooks
-  - page: Prepare model weights
+  - page: Model Weights
     path: ../doc/guides/model-access.mdx
     slug: guides/model-access
-  - page: Prepare workload prerequisites
+  - page: Workload Prerequisites
     path: ../doc/workloads/workloads-requirements-installation.mdx
     slug: workloads/workloads-requirements-installation
-  - page: Inspect commands before execution
+  - page: Command Preview
     path: ../doc/guides/preview.mdx
     slug: guides/preview
-  - page: Read results and generate reports
+  - page: Results and Reports
     path: ../doc/reporting.mdx
     slug: reporting
   path: ../doc/guides/index.mdx

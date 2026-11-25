@@ -2,25 +2,25 @@
 
 <Anchor id="cloudai-benchmark-framework" />
 
-**The execution framework for AI-driven research.**
+**CloudAI is the execution framework for AI-driven research.**
 
-Run the workloads your task requires, collect evidence, and use the results to guide the next experiment.
+Run the workloads your task requires, collect evidence, and use the results to guide your next experiment.
 Combine experiments into a broader investigation using existing workloads or your own.
 
 ![CloudAI connects experiment configuration to workload execution, metrics, and reusable results. Custom agents can use measured feedback. Public interfaces support workloads, systems and runners, reporters, and agents.](assets/cloudai-experiments.svg)
 
 Explore configurations with grid search, or connect your own [optimization agent](/reference/agents)
-to guide search within your compute budget.
+to guide the search within your compute budget.
 [Add workloads, systems, and reporters](/development) for your task.
 
-Our internal optimization agents can significantly reduce the number of experiments needed to find strong
-configurations compared with grid search, saving time and compute budget. Contact the team for details.
+Compared with grid search, our internal optimization agents can significantly reduce the number of experiments
+needed to find strong configurations, saving time and compute budget. Contact the team for more details.
 
 <Anchor id="run-your-first-experiment" />
 
 <Anchor id="choose-a-workflow" />
 
-## Run your first experiment
+## Run an Example Experiment
 
 Start with an example below, or explore [all supported workloads](/workloads/index).
 
@@ -39,7 +39,7 @@ uv run cloudai run --system-config slurm.toml \
     --test-scenario conf/experimental/quickstart/vllm.toml
 ```
 
-<Accordion title="View configuration">
+<Accordion title="View Configuration">
 
 ```toml
 name = "quickstart-vllm"
@@ -87,7 +87,7 @@ uv run cloudai run --system-config slurm.toml \
     --test-scenario conf/experimental/quickstart/nccl.toml
 ```
 
-<Accordion title="View configuration">
+<Accordion title="View Configuration">
 
 ```toml
 name = "quickstart-nccl"
@@ -137,7 +137,7 @@ uv run cloudai run --system-config slurm.toml \
     --test-scenario conf/experimental/quickstart/fio-slurm.toml
 ```
 
-<Accordion title="View configurations">
+<Accordion title="View Configurations">
 
 **Standalone**
 
@@ -218,7 +218,7 @@ uv run cloudai run --system-config slurm.toml \
     --test-scenario conf/experimental/quickstart/mbridge.toml
 ```
 
-<Accordion title="View configuration">
+<Accordion title="View Configuration">
 
 ```toml
 name = "quickstart-mbridge"
@@ -266,7 +266,7 @@ time_limit = "00:30:00"
 
 <Anchor id="getting-started" />
 
-## Start here
+## Set Up CloudAI
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) 0.13.6 or newer and clone CloudAI:
 
@@ -308,9 +308,9 @@ See [Systems](/systems) for system settings and [Install CloudAI](/getting-start
 
 <Anchor id="read-your-results" />
 
-## Read your results
+## Read Experiment Results
 
-Open the results directory printed by CloudAI. See [Read results and generate reports](/reporting) for HTML reports and `experiment.json`.
+Open the results directory printed by CloudAI. See [Results and Reports](/reporting) for HTML reports and `experiment.json`.
 Use the [Python API](/api) to automate experiments and consume results.
 
 Make CloudAI fit your task: [build an extension](/extend/index) or [contribute an improvement](/extend/contribute).
