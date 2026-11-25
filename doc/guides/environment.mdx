@@ -30,13 +30,13 @@ Edit `slurm.toml` for your cluster:
 - Make output, install, model, and input paths accessible on the execution nodes
 - Add container mounts for data outside the default paths
 
-Start with one case. Use [Run on Slurm](/guides/slurm) for allocation modes, scheduler arguments, and tracing.
+Start with one case. Use [Slurm](/guides/slurm) for allocation modes, scheduler arguments, and tracing.
 
 <Anchor id="kubernetes" />
 
 ## Kubernetes
 
-Use [Run on Kubernetes](/guides/kubernetes) to configure cluster access and networking, then run [Dynamo](/workloads/ai-dynamo)
+Use [Kubernetes](/guides/kubernetes) to configure cluster access and networking, then run [Dynamo](/workloads/ai-dynamo)
 or [NCCL](/workloads/nccl). CloudAI generates the workload's Kubernetes resources and collects results.
 
 Check [Workload and system support](/reference/workload-support) before choosing a system. Configuration fields for all systems are
