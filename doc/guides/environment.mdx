@@ -12,13 +12,13 @@ For local Fio execution, install `fio` and copy the system example:
 cp conf/common/system/standalone_system.toml standalone.toml
 ```
 
-Use [Run your first experiment](/tutorial) to verify this path. Standalone support varies by workload; check [Workloads](/workloads/index).
+Use [Run an Experiment](/tutorial) to verify this path. Standalone support varies by workload; check [Workloads](/workloads/index).
 
 <Anchor id="slurm" />
 
 ## Slurm
 
-On the submit host, prepare [Prepare workload prerequisites](/workloads/workloads-requirements-installation), then copy:
+On the submit host, [Prepare Workload Prerequisites](/workloads/workloads-requirements-installation), then copy:
 
 ```bash
 cp conf/common/system/example_slurm_cluster.toml slurm.toml
@@ -26,9 +26,9 @@ cp conf/common/system/example_slurm_cluster.toml slurm.toml
 
 Edit `slurm.toml` for your cluster:
 
-- Set partition, node counts, and GPU counts.
-- Make output, install, model, and input paths accessible on the execution nodes.
-- Add container mounts for data outside the default paths.
+- Set partition, node counts, and GPU counts
+- Make output, install, model, and input paths accessible on the execution nodes
+- Add container mounts for data outside the default paths
 
 Start with one case. Use [Run on Slurm](/guides/slurm) for allocation modes, scheduler arguments, and tracing.
 
